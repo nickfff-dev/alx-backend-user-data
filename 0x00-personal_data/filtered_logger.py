@@ -35,9 +35,12 @@ class RedactingFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         """Filters values from the log message using filter_datum."""
-        original_format = super().format(record)
-        return filter_datum(self.fields, self.REDACTION, original_format,
-                            self.SEPARATOR)
+        record.msg = filter_datum(
+            self.fields,
+            self.REDACTION,
+            record.getMessage(),
+            self.SEPARATOR)
+        return super(RedactingFormatter, self).format(record)
 
 
 def get_logger() -> logging.Logger:
@@ -68,9 +71,33 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     database = os.getenv('PERSONAL_DATA_DB_NAME')
 
     # Establish and return a database connection
-    return mysql.connector.connection.MySQLConnection(
+    cnctn = mysql.connector.connection.MySQLConnection(
         user=username,
         password=password,
         host=host,
         database=database
     )
+    return cnctn
+
+
+def main():
+    """Fetch a db connection from get_db and select all rows in
+    the users table
+    and display each row under a filtered format."""
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users")
+    csv_headers = [i[0] for i in cursor.description]
+    logger = get_logger()
+    for row in cursor:
+        msg = ""
+        for i in range(len(row)):
+            msg += f"{csv_headers[i]}={str(row[i])};"
+        logger.info(msg.strip())
+
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
