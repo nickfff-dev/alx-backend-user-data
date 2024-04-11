@@ -15,8 +15,10 @@ def filter_datum(fields: List[str], redaction: str,
                  message: str, separator: str) -> str:
     """Obfuscates specified fields in a log message using a single regex
     sub."""
-    regex = separator.join([f"(?<={field}=)[^;]*" for field in fields])
-    return re.sub(regex, redaction, message)
+    for field in fields:
+        message = re.sub(f"{field}=(.*?){separator}",
+                         f"{field}={redaction}{separator}", message)
+    return message
 
 
 class RedactingFormatter(logging.Formatter):
@@ -66,7 +68,7 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     database = os.getenv('PERSONAL_DATA_DB_NAME')
 
     # Establish and return a database connection
-    return mysql.connector.connect(
+    return mysql.connector.connection.MySQLConnection(
         user=username,
         password=password,
         host=host,
