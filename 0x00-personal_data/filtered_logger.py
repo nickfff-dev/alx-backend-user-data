@@ -2,7 +2,7 @@
 """Module for filtering sensitive data from log messages."""
 
 import logging
-import os
+from os import environ
 import mysql.connector
 import re
 from typing import List
@@ -64,10 +64,10 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     Returns a MySQLConnection object.
     """
     # Retrieve environment variables with default values
-    username = os.environ.get('PERSONAL_DATA_DB_USERNAME', 'root')
-    password = os.environ.get('PERSONAL_DATA_DB_PASSWORD', '')
-    host = os.environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
-    database = os.environ.get('PERSONAL_DATA_DB_NAME')
+    username = environ.get('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = environ.get('PERSONAL_DATA_DB_PASSWORD', '')
+    host = environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
+    database = environ.get('PERSONAL_DATA_DB_NAME')
 
     # Establish and return a database connection
     cnctn = mysql.connector.connection.MySQLConnection(
@@ -80,7 +80,8 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 
 
 def main():
-    """Fetch a db connection from get_db and select all rows in the users table
+    """Fetch a db connection from get_db and select
+    all rows in the users table
     and display each row under a filtered format."""
     db = get_db()
     cursor = db.cursor()
