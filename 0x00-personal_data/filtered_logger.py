@@ -13,8 +13,7 @@ PII_FIELDS = ("email", "ssn", "password", "phone", "ip")
 
 def filter_datum(fields: List[str], redaction: str,
                  message: str, separator: str) -> str:
-    """Obfuscates specified fields in a log message using a single regex
-    sub."""
+    """Obfuscates specified fields in a log message using a single regex."""
     for field in fields:
         message = re.sub(f"{field}=(.*?){separator}",
                          f"{field}={redaction}{separator}", message)
@@ -90,10 +89,11 @@ def main():
     csv_headers = [i[0] for i in cursor.description]
     logger = get_logger()
     for row in cursor:
-        msg = ""
-        for i in range(len(row)):
-            msg += f"{csv_headers[i]}={str(row[i])};"
-        logger.info(msg.strip())
+        logger.info(
+            "{}".format(
+                "; ".join(
+                    f"{csv_headers[i]}={str(row[i])}" for i in range(
+                        len(row)))))
 
     cursor.close()
     db.close()
