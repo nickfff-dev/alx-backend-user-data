@@ -51,7 +51,7 @@ def get_logger() -> logging.Logger:
 
     # Create a stream handler with specific formatting
     stream_handler = logging.StreamHandler()
-    formatter = RedactingFormatter(PII_FIELDS)
+    formatter = RedactingFormatter(list(PII_FIELDS))
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
 
@@ -64,10 +64,10 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     Returns a MySQLConnection object.
     """
     # Retrieve environment variables with default values
-    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
-    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
-    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
-    database = os.getenv('PERSONAL_DATA_DB_NAME')
+    username = os.environ.get('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.environ.get('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
+    database = os.environ.get('PERSONAL_DATA_DB_NAME')
 
     # Establish and return a database connection
     cnctn = mysql.connector.connection.MySQLConnection(
@@ -80,8 +80,7 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 
 
 def main():
-    """Fetch a db connection from get_db and select all rows in
-    the users table
+    """Fetch a db connection from get_db and select all rows in the users table
     and display each row under a filtered format."""
     db = get_db()
     cursor = db.cursor()
@@ -89,11 +88,9 @@ def main():
     csv_headers = [i[0] for i in cursor.description]
     logger = get_logger()
     for row in cursor:
-        logger.info(
-            "{}".format(
-                "; ".join(
-                    f"{csv_headers[i]}={str(row[i])}" for i in range(
-                        len(row)))))
+        msg = "".join(f'{x}={str(y)}; '
+                      for x, y in zip(row, csv_headers))
+        logger.info(msg.strip())
 
     cursor.close()
     db.close()
