@@ -87,7 +87,7 @@ class BasicAuth(Auth):
         Returns:
         - The User instance if the email and password match, otherwise None.
         """
-        if not user_email or not user_pwd:
+        if user_email is None or user_pwd is None:
             return None
 
         if not isinstance(user_email, str) or not isinstance(user_pwd, str):
