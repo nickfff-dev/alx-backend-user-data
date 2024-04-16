@@ -38,5 +38,22 @@ class Auth:
         return None
 
     def current_user(self, request=None) -> User:
-        """Placeholder method to retrieve the current user from the request."""
+        """Placeholder method to retrieve
+        the current user from the request."""
         return None
+
+    def authorization_header(self, request=None) -> str:
+        """
+        Extracts the Authorization header from the request.
+
+        Parameters:
+        - request: The request object.
+
+        Returns:
+        - The value of the Authorization header if it exists, otherwise None.
+        """
+        if request is None:
+            return None
+        if 'Authorization' not in request.headers:
+            return None
+        return request.headers['Authorization']
