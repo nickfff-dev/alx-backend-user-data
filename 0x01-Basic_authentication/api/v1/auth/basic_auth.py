@@ -76,7 +76,7 @@ class BasicAuth(Auth):
 
     def user_object_from_credentials(
             self, user_email: str,
-            user_pwd: str) -> Union[TypeVar('User'), None]:
+            user_pwd: str) -> TypeVar('User'):
         """
         Returns the User instance based on his email and password.
 
