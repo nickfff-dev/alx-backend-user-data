@@ -32,21 +32,20 @@ def before_request():
     """ Filters each request based on the conditions provided
     """
     if auth is None:
-        return
-    unauthorized_paths = ['/api/v1/status/', '/api/v1/auth_session/login/',
-                          '/api/v1/unauthorized/', '/api/v1/forbidden/']
+        pass
+    setattr(request, 'current_user', auth.current_user(request))
+    unauthorized_paths = ['/api/v1/status/',
+                          '/api/v1/auth_session/login/',
+                          '/api/v1/unauthorized/',
+                          '/api/v1/forbidden/'
+                          ]
 
-    if not auth.require_auth(request.path, unauthorized_paths):
-        return
-    if auth.authorization_header(request) is None:
-        abort(401)
-    if auth.session_cookie(request) is None:
-        abort(401)
-    if auth.current_user(request) is None:
-        abort(403)
-    request.current_user = auth.current_user(request)
-    if request.current_user is None:
-        abort(403)
+    if auth.require_auth(request.path, unauthorized_paths):
+        token = auth.session_cookie(request)
+        if auth.authorization_header(request) is None and token is None:
+            abort(401, description="Unauthorized")
+        if auth.current_user(request) is None:
+            abort(403, description="Forbidden")
 
 
 @app.errorhandler(404)
