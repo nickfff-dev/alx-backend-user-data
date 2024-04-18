@@ -2,6 +2,7 @@
 """Session authentication module."""
 from .auth import Auth
 import uuid
+from models.user import User
 
 
 class SessionAuth(Auth):
@@ -39,3 +40,33 @@ class SessionAuth(Auth):
             return None
 
         return self.user_id_by_session_id.get(session_id)
+    
+    def current_user(self, request=None) -> User:
+        """
+        Retrieves the User instance for a request based on the session cookie.
+
+        Parameters:
+        - request: The request object.
+
+        Returns:
+        - The User instance if the session cookie is valid and corresponds to a user, otherwise None.
+        """
+        if request is None:
+            return None
+
+        # Retrieve the session cookie value
+        session_cookie_value = self.session_cookie(request)
+        if session_cookie_value is None:
+            return None
+
+        # Retrieve the user ID for the session ID
+        user_id = self.user_id_for_session_id(session_cookie_value)
+        if user_id is None:
+            return None
+
+        # Retrieve the User instance from the database
+        try:
+            user = User.get(user_id)
+            return user
+        except Exception:
+            return None
