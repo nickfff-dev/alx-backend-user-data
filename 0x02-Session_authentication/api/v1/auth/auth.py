@@ -2,6 +2,7 @@
 """Auth module."""
 from typing import List, TypeVar
 from flask import request
+import os
 
 # Define a type variable for the User type
 User = TypeVar('User')
@@ -60,3 +61,19 @@ class Auth:
         if 'Authorization' not in request.headers:
             return None
         return request.headers['Authorization']
+
+    def session_cookie(self, request=None) -> str:
+        """
+        Retrieve the session cookie value from a request.
+
+        Parameters:
+        - request: The request object.
+
+        Returns:
+        - The value of the session cookie if it exists, otherwise None.
+        """
+        if request is None:
+            return None
+
+        session_name = os.getenv('SESSION_NAME', '_my_session_id')
+        return request.cookies.get(session_name)
