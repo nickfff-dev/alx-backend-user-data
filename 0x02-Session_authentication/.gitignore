@@ -1,0 +1,6 @@
+env
+__pycache__/
+env/
+*main.py
+*.json
+.DS_Store
