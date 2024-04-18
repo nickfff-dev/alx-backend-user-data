@@ -10,8 +10,7 @@ class SessionAuth(Auth):
     user_id_by_session_id = {}
 
     def create_session(self, user_id: str = None) -> str:
-        """
-        Create a session for a user.
+        """Create a session for a user.
 
         Args:
             user_id (str): The user ID for which to create a session.
@@ -27,8 +26,7 @@ class SessionAuth(Auth):
         return session_id
 
     def user_id_for_session_id(self, session_id: str = None) -> str:
-        """
-        Retrieve the user ID for a given session ID.
+        """Retrieve the user ID for a given session ID.
 
         Args:
             session_id (str): The session ID to look up.
@@ -40,16 +38,17 @@ class SessionAuth(Auth):
             return None
 
         return self.user_id_by_session_id.get(session_id)
-    
+
     def current_user(self, request=None) -> User:
-        """
-        Retrieves the User instance for a request based on the session cookie.
+        """Retrieves the User instance for a request based on the session
+        cookie.
 
         Parameters:
         - request: The request object.
 
         Returns:
-        - The User instance if the session cookie is valid and corresponds to a user, otherwise None.
+        - The User instance if the session cookie is
+        valid and corresponds to a user, otherwise None.
         """
         if request is None:
             return None
