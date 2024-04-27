@@ -12,7 +12,7 @@ from user import Base, User
 
 
 class DB:
-    """ DB"""
+    """ DB class to interact with the database"""
 
     def __init__(self):
         """ Initialize a new DB instance """
@@ -43,13 +43,19 @@ class DB:
         """ This method takes in arbitrary keyword arguments
         and returns the first row found in the users table
         """
+        if not kwargs:
+            raise InvalidRequestError
+        for key in kwargs.keys():
+            if not hasattr(User, key):
+                raise InvalidRequestError
         try:
-            user = self._session.query(User).filter_by(**kwargs).one()
+            user = self._session.query(User).filter_by(**kwargs).first()
         except NoResultFound:
             raise NoResultFound
         except InvalidRequestError:
             raise InvalidRequestError
-
+        if user is None:
+            raise NoResultFound
         return user
 
     def update_user(self, user_id: int, **kwargs) -> None:
@@ -65,7 +71,5 @@ class DB:
             if not hasattr(user, key):
                 raise ValueError(f'User has no attribute {key}')
             setattr(user, key, value)
-        try:
-            self._session.commit()
-        except InvalidRequestError:
-            raise ValueError('Invalid request')
+
+        self._session.commit()
