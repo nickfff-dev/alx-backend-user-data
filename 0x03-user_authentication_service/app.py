@@ -128,7 +128,7 @@ def update_password() -> str:
         abort(400)
 
     try:
-        AUTH.update_password(reset_token, new_password)
+        user = AUTH.update_password(reset_token, new_password)
     except ValueError:
         abort(403)
 
