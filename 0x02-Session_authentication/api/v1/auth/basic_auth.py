@@ -28,7 +28,7 @@ class BasicAuth(Auth):
         if not authorization_header.startswith("Basic "):
             return None
 
-        return authorization_header.split(" ")[1]
+        return authorization_header.split(" ")[-1]
 
     def decode_base64_authorization_header(
             self, base64_authorization_header: str) -> str:
@@ -66,19 +66,14 @@ class BasicAuth(Auth):
         """
         if decoded_base64_authorization_header is None or not isinstance(
                 decoded_base64_authorization_header, str):
-            return None, None
+            return (None, None)
 
         if ":" not in decoded_base64_authorization_header:
-            return None, None
+            return (None, None)
 
-        # Split the decoded string into email and password parts
-        parts = decoded_base64_authorization_header.split(":", 1)
-        # Check if the split was successful
-        if len(parts) != 2:
-            return None, None
-
-        email, password = decoded_base64_authorization_header.split(":", 1)
-        return email, password
+        email = decoded_base64_authorization_header.split(":")[0]
+        password = decoded_base64_authorization_header[1 + len(email):]
+        return (email, password)
 
     def user_object_from_credentials(
             self, user_email: str,

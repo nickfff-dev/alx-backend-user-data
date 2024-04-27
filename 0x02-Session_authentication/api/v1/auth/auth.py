@@ -17,29 +17,20 @@ class Auth:
         # Return True if path is None
         if path is None:
             return True
-
-        # Return True if excluded_paths is None or empty
-        if not excluded_paths or len(excluded_paths) == 0:
+        elif excluded_paths is None or len(excluded_paths) == 0:
             return True
-
-        # Normalize path by ensuring it ends with a slash
-        if not path.endswith('/'):
-            path += '/'
-
-        # Check if path is in excluded_paths, considering wildcards
-        for excluded_path in excluded_paths:
-            if excluded_path.endswith('*'):
-                if path.startswith(excluded_path[:-1]):
+        elif path in excluded_paths:
+            return False
+        else:
+            for excluded_path in excluded_paths:
+                if excluded_path.startswith(path):
                     return False
-            elif path == excluded_path:
-                return False
-
+                if path.startswith(excluded_path):
+                    return False
+                if excluded_path[-1] == '*':
+                    if path.startswith(excluded_path[:-1]):
+                        return False
         return True
-
-    def authorization_header(self, request=None) -> str:
-        """Placeholder method to retrieve the authorization header from the
-        request."""
-        return None
 
     def current_user(self, request=None) -> User:
         """Placeholder method to retrieve
@@ -58,9 +49,10 @@ class Auth:
         """
         if request is None:
             return None
-        if 'Authorization' not in request.headers:
+        header = request.headers.get('Authorization')
+        if header is None:
             return None
-        return request.headers['Authorization']
+        return header
 
     def session_cookie(self, request=None) -> str:
         """

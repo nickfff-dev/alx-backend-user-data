@@ -28,6 +28,9 @@ elif auth_type == 'basic_auth':
 elif auth_type == 'session_exp_auth':
     from api.v1.auth.session_exp_auth import SessionExpAuth
     auth = SessionExpAuth()
+elif auth_type == 'session_db_auth':
+    from api.v1.auth.session_db_auth import SessionDBAuth
+    auth = SessionDBAuth()
 
 
 @app.before_request
@@ -36,19 +39,20 @@ def before_request():
     """
     if auth is None:
         pass
-    setattr(request, 'current_user', auth.current_user(request))
-    unauthorized_paths = ['/api/v1/status/',
-                          '/api/v1/auth_session/login/',
-                          '/api/v1/unauthorized/',
-                          '/api/v1/forbidden/'
-                          ]
+    else:
+        setattr(request, 'current_user', auth.current_user(request))
+        unauthorized_paths = ['/api/v1/status/',
+                              '/api/v1/auth_session/login/',
+                              '/api/v1/unauthorized/',
+                              '/api/v1/forbidden/'
+                              ]
 
-    if auth.require_auth(request.path, unauthorized_paths):
-        token = auth.session_cookie(request)
-        if auth.authorization_header(request) is None and token is None:
-            abort(401, description="Unauthorized")
-        if auth.current_user(request) is None:
-            abort(403, description="Forbidden")
+        if auth.require_auth(request.path, unauthorized_paths):
+            token = auth.session_cookie(request)
+            if auth.authorization_header(request) is None and token is None:
+                abort(401, description="Unauthorized")
+            if auth.current_user(request) is None:
+                abort(403, description="Forbidden")
 
 
 @app.errorhandler(404)
