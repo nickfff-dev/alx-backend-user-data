@@ -43,18 +43,12 @@ class DB:
         """ This method takes in arbitrary keyword arguments
         and returns the first row found in the users table
         """
-        if not kwargs:
-            raise InvalidRequestError
-
-        fields = User.__table__.columns.keys()
-        for key in kwargs.keys():
-            if key not in fields:
-                raise InvalidRequestError
-
-        user = self._session.query(User).filter_by(**kwargs).first()
-
-        if user is None:
+        try:
+            user = self._session.query(User).filter_by(**kwargs).one()
+        except NoResultFound:
             raise NoResultFound
+        except InvalidRequestError:
+            raise InvalidRequestError
 
         return user
 
