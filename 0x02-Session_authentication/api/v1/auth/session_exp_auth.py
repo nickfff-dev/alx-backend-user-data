@@ -12,10 +12,10 @@ class SessionExpAuth(SessionAuth):
     def __init__(self):
         """Initialize the SessionExpAuth class."""
         duration_str = os.getenv('SESSION_DURATION')
-        if duration_str is None:
-            self.session_duration = 0
-        else:
+        try:
             self.session_duration = int(duration_str)
+        except Exception:
+            self.session_duration = 0
 
     def create_session(self, user_id=None):
         """Create a session for a user with expiration."""

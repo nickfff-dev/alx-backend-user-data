@@ -50,8 +50,6 @@ class SessionAuth(Auth):
         - The User instance if the session cookie is
         valid and corresponds to a user, otherwise None.
         """
-        if request is None:
-            return None
 
         # Retrieve the session cookie value
         session_cookie_value = self.session_cookie(request)
@@ -94,4 +92,4 @@ class SessionAuth(Auth):
             del self.user_id_by_session_id[session_cookie_value]
             return True
         except Exception:
-            return False
+            pass
