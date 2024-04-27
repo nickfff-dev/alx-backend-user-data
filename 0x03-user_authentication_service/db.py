@@ -62,13 +62,16 @@ class DB:
         """ This method takes a required integer argument
         user_id and arbitrary keyword arguments, and returns None
         """
-        user = self.find_user_by(id=user_id)
-
-        fields = User.__table__.columns.keys()
+        try:
+            user = self.find_user_by(id=user_id)
+        except NoResultFound:
+            raise ValueError(f'User with id {user_id} not found')
 
         for key, value in kwargs.items():
-            if key not in fields:
-                raise ValueError
+            if not hasattr(user, key):
+                raise ValueError(f'User has no attribute {key}')
             setattr(user, key, value)
-
-        self._session.commit()
+        try:
+            self._session.commit()
+        except InvalidRequestError:
+            raise ValueError('Invalid request')
